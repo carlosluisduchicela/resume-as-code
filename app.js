@@ -359,22 +359,37 @@ function renderCheck(result, container) {
   group("Contradictions — in the paste, not in the source", result.contradictions, "warn", "none — nothing here contradicts the source");
 }
 
+function lintCounts(issues) {
+  return {
+    errors: issues.filter(function (i) { return i.level === "error"; }).length,
+    warns: issues.filter(function (i) { return i.level === "warn"; }).length,
+  };
+}
+
+function lintVerdict(errors, warns) {
+  if (errors === 0 && warns === 0) return "✓ all clear";
+  var text = "";
+  if (errors) text += errors + " error" + (errors > 1 ? "s" : "");
+  if (errors && warns) text += " · ";
+  if (warns) text += warns + " warning" + (warns > 1 ? "s" : "");
+  return text;
+}
+
+function lintStateClass(errors, warns) {
+  return errors ? "has-error" : warns ? "has-warn" : "all-clear";
+}
+
 function renderLint(issues, listEl, summaryEl) {
   listEl.textContent = "";
-  const errors = issues.filter(function (i) { return i.level === "error"; }).length;
-  const warns = issues.filter(function (i) { return i.level === "warn"; }).length;
+  const counts = lintCounts(issues);
   issues.forEach(function (issue) {
     const li = el("li", null, "lint-item " + issue.level);
     li.appendChild(el("span", issue.level === "error" ? "✗" : issue.level === "warn" ? "⚠" : "✓", "lint-icon"));
     li.appendChild(el("span", issue.text));
     listEl.appendChild(li);
   });
-  summaryEl.textContent = errors === 0 && warns === 0
-    ? "✓ all clear"
-    : (errors ? errors + " error" + (errors > 1 ? "s" : "") : "") +
-      (errors && warns ? " · " : "") +
-      (warns ? warns + " warning" + (warns > 1 ? "s" : "") : "");
-  summaryEl.className = "lint-summary " + (errors ? "has-error" : warns ? "has-warn" : "all-clear");
+  summaryEl.textContent = lintVerdict(counts.errors, counts.warns);
+  summaryEl.className = "lint-summary " + lintStateClass(counts.errors, counts.warns);
 }
 
 /* ------------------------------------------------------------------ */
@@ -519,7 +534,7 @@ function quickEdit(kind) {
   if (kind === "reset") {
     state = JSON.parse(JSON.stringify(SAMPLE));
     commit(true);
-    return "Sample reset — outputs in sync.";
+    return "sample reset — every version rebuilt from the source.";
   }
   if (kind === "promote") {
     d.experience[0].title = "Staff Product Manager, Growth";
@@ -546,8 +561,8 @@ function quickEdit(kind) {
   state = d;
   commit(true);
   return kind === "break"
-    ? "Broken on purpose — watch the lint panel, then hit Reset sample."
-    : "Applied — every output and the form updated from the one source.";
+    ? "broken on purpose — check the lint verdict in the outputs bar, then hit reset sample."
+    : "applied — every version updated from the one source.";
 }
 
 /* ------------------------------------------------------------------ */
@@ -575,9 +590,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("ats-output").textContent = generateAts(state);
     document.getElementById("linkedin-output").textContent = generateLinkedin(state);
     renderHuman(state, document.getElementById("human-output"));
-    renderLint(lintResume(state), document.getElementById("lint-list"), document.getElementById("lint-summary"));
+    const issues = lintResume(state);
+    renderLint(issues, document.getElementById("lint-list"), document.getElementById("lint-summary"));
+    const barSummary = document.getElementById("lint-bar-summary");
+    const counts = lintCounts(issues);
+    barSummary.textContent = lintVerdict(counts.errors, counts.warns);
+    barSummary.className = "lint-bar-summary " + lintStateClass(counts.errors, counts.warns);
     renderCheck(checkConsistency(state, profileInput.value), document.getElementById("check-results"));
-    ["tab-human", "tab-ats", "tab-linkedin"].forEach(function (id) {
+    ["tab-human", "tab-ats", "tab-linkedin", "tab-checker"].forEach(function (id) {
       const p = document.getElementById(id);
       p.classList.remove("pulse");
       void p.offsetWidth; // restart the animation
@@ -602,7 +622,7 @@ document.addEventListener("DOMContentLoaded", function () {
         jsonError.hidden = true;
         buildForm(formEditor);
         renderOutputs();
-        flashStatus("JSON parsed — outputs in sync.");
+        flashStatus("json parsed — outputs rebuilt.");
       } catch (err) {
         jsonError.textContent = "JSON error: " + err.message + " (outputs still show the last valid version)";
         jsonError.hidden = false;
@@ -654,6 +674,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("copy-ats").addEventListener("click", function () { copyText(generateAts(state), this); });
   document.getElementById("copy-md").addEventListener("click", function () { copyText(generateMarkdown(state), this); });
   document.getElementById("copy-linkedin").addEventListener("click", function () { copyText(generateLinkedin(state), this); });
+  document.getElementById("print-resume").addEventListener("click", function () { window.print(); });
 
   /* Quick edits */
   document.querySelectorAll("[data-quick]").forEach(function (btn) {

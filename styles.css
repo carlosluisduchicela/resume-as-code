@@ -48,14 +48,7 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: .95rem;
 }
-.topbar-badges { margin: 0 0 0 auto; display: flex; flex-wrap: wrap; gap: .4rem; }
-.badge {
-  font-size: .78rem;
-  color: #cfd6e4;
-  border: 1px solid #363c4a;
-  border-radius: 999px;
-  padding: .12rem .6rem;
-}
+
 
 /* ---------- Hero ---------- */
 .hero {
@@ -66,38 +59,13 @@ body {
 .hero h1 { margin: 0 0 .5rem; font-size: clamp(1.7rem, 4.5vw, 2.6rem); letter-spacing: -.02em; line-height: 1.12; }
 .hero-accent { color: var(--accent); }
 .hero-sub { margin: 0; max-width: 52rem; font-size: 1.05rem; color: #2c313c; }
-
-.steps {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: .8rem;
-  margin: 1.3rem 0 0;
-  padding: 0;
-}
-.steps li {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: .8rem .9rem;
-  display: flex;
-  gap: .65rem;
-  align-items: flex-start;
+.hero-frame {
+  margin: .8rem 0 0;
+  max-width: 52rem;
   font-size: .95rem;
-}
-.step-n {
-  flex: none;
-  width: 1.55rem; height: 1.55rem;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .9rem;
-  margin-top: .1rem;
+  color: #2c313c;
+  border-left: 3px solid var(--accent);
+  padding-left: .7rem;
 }
 
 .tryit {
@@ -323,9 +291,38 @@ button.copied { border-color: var(--good); color: var(--good); background: var(-
 .lint-item.warn .lint-icon { color: var(--warn); }
 .lint-item.error .lint-icon { color: var(--bad); }
 
+/* ---------- Sticky lint bar ---------- */
+.lint-bar {
+  position: sticky;
+  top: .6rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 10px;
+  padding: .5rem .7rem;
+  margin-bottom: .8rem;
+  box-shadow: var(--shadow);
+}
+.lint-bar-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #cfd6e4; }
+.lint-bar-summary { font-size: .9rem; font-weight: 700; }
+.lint-bar-summary.all-clear { color: #8ce99a; }
+.lint-bar-summary.has-warn { color: #ffd43b; }
+.lint-bar-summary.has-error { color: #ff9d97; }
+.chip-on-dark {
+  margin-left: auto;
+  background: transparent;
+  border-color: #ff9d97;
+  color: #ffb4ae;
+  font-size: .8rem;
+  padding: .3rem .7rem;
+}
+.chip-on-dark:hover { background: #5f1410; color: #ffd9d6; }
+
 /* ---------- Checker ---------- */
-.checker { border-top: 1px solid var(--line); margin-top: 1.2rem; padding-top: .9rem; }
-.checker h3 { margin: 0 0 .3rem; }
+.checker-title { margin: 0 0 .3rem; }
 .check-group { margin-top: .7rem; }
 .check-head { margin: 0 0 .25rem; font-weight: 600; font-size: .92rem; display: flex; gap: .45rem; align-items: center; }
 .check-group ul { margin: 0; padding-left: 1.6rem; font-size: .9rem; }
@@ -355,9 +352,7 @@ button.copied { border-color: var(--good); color: var(--good); background: var(-
 /* ---------- Mobile ---------- */
 @media (max-width: 920px) {
   .layout { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr; }
   .output, .resume-preview { max-height: none; }
-  .topbar-badges { margin-left: 0; }
 }
 @media (max-width: 560px) {
   .field-grid { grid-template-columns: 1fr; }
@@ -368,4 +363,24 @@ button.copied { border-color: var(--good); color: var(--good); background: var(-
 @media (prefers-reduced-motion: reduce) {
   .live-dot .dot, .tab-panel.pulse .output, .tab-panel.pulse .resume-preview, .lint-item { animation: none; }
   .chip:active, .row button:active, button.primary:active { transform: none; }
+}
+
+.footer-line { font-weight: 600; color: #2c313c; }
+
+/* ---------- Print: only the human resume, clean page ---------- */
+@page { margin: 16mm; }
+@media print {
+  body { background: #fff; }
+  .topbar, .hero, .source-card, .lint-bar, .card-head, .tabs, .row, .site-footer { display: none !important; }
+  .layout { display: block; max-width: none; margin: 0; padding: 0; }
+  .outputs-card { border: 0; box-shadow: none; padding: 0; }
+  .tab-panel { display: none !important; }
+  #tab-human { display: block !important; }
+  .resume-preview {
+    border: 0;
+    box-shadow: none;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+  }
 }

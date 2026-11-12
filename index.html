@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>resume-as-code — one resume, every surface, always in sync</title>
+<title>resume-as-code — one resume file. no version ever disagrees.</title>
 <meta name="description" content="Edit one structured resume and watch the ATS text, the human resume, and the LinkedIn copy update live — with a lint panel that catches drift before a recruiter does. Sample data is fictional.">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -15,31 +15,21 @@
       <span class="brand-mark" aria-hidden="true">{ }</span>
       <span class="brand-name">resume&#8209;as&#8209;code</span>
     </div>
-    <p class="topbar-badges">
-      <span class="badge">100% offline</span>
-      <span class="badge">no sign-up</span>
-      <span class="badge">sample data is fictional</span>
-    </p>
   </div>
 </header>
 
 <section class="hero">
-  <h1>One resume. Every surface. <span class="hero-accent">Always in sync.</span></h1>
-  <p class="hero-sub">Your resume lives in exactly one place — a single structured source. Edit it once and the ATS text, the human resume, and the LinkedIn copy are regenerated instantly. Nothing is ever retyped, so nothing can drift.</p>
-  <ol class="steps">
-    <li><span class="step-n">1</span><span><strong>Edit</strong> the sample on the left — form or raw JSON.</span></li>
-    <li><span class="step-n">2</span><span><strong>Watch</strong> all three outputs update as you type.</span></li>
-    <li><span class="step-n">3</span><span><strong>Lint</strong> catches bad dates, duplicates, and missing fields live.</span></li>
-  </ol>
+  <h1>one resume file. <span class="hero-accent">no version ever disagrees.</span></h1>
+  <p class="hero-sub">the problem: your pdf says one job title, your linkedin says another, and the recruiter's system has a third — because you retype the same career into every form. here the resume lives in one structured file. edit it once and the ats text, the readable resume, and the linkedin copy are rebuilt from it. a lint pass catches bad dates, duplicates, and missing fields while you type.</p>
+  <p class="hero-frame">i run my own job search on this system. the sample resume is fictional; the setup is the point.</p>
   <div class="tryit">
-    <span class="tryit-label">Try it — one click:</span>
-    <button type="button" class="chip" data-quick="promote">Promote Alex</button>
-    <button type="button" class="chip" data-quick="newjob">Add a new job</button>
-    <button type="button" class="chip" data-quick="bullet">Add a bullet</button>
-    <button type="button" class="chip chip-danger" data-quick="break">Break it on purpose</button>
-    <button type="button" class="chip chip-ghost" data-quick="reset">Reset sample</button>
+    <span class="tryit-label">edit the sample — watch all three versions update:</span>
+    <button type="button" class="chip" data-quick="promote">promote alex</button>
+    <button type="button" class="chip" data-quick="newjob">add a new job</button>
+    <button type="button" class="chip" data-quick="bullet">add a bullet</button>
+    <button type="button" class="chip chip-ghost" data-quick="reset">reset sample</button>
   </div>
-  <p id="sync-status" class="sync-status" role="status">Sample loaded — outputs in sync.</p>
+  <p id="sync-status" class="sync-status" role="status">sample loaded — edit anything and every version follows.</p>
 </section>
 
 <main class="layout">
@@ -79,10 +69,17 @@
       <span class="live-dot" title="Regenerates as you type"><span class="dot"></span>live</span>
     </div>
 
+    <div class="lint-bar">
+      <span class="lint-bar-label">lint</span>
+      <span id="lint-bar-summary" class="lint-bar-summary all-clear" aria-live="polite">✓ all clear</span>
+      <button type="button" class="chip chip-danger chip-on-dark" data-quick="break">break it on purpose</button>
+    </div>
+
     <div class="tabs" role="tablist" aria-label="Output format">
       <button role="tab" id="tab-btn-human" aria-controls="tab-human" aria-selected="true" data-tab="human" class="tab active" type="button">Human resume</button>
       <button role="tab" id="tab-btn-ats" aria-controls="tab-ats" aria-selected="false" data-tab="ats" class="tab" type="button">ATS text</button>
       <button role="tab" id="tab-btn-linkedin" aria-controls="tab-linkedin" aria-selected="false" data-tab="linkedin" class="tab" type="button">LinkedIn</button>
+      <button role="tab" id="tab-btn-checker" aria-controls="tab-checker" aria-selected="false" data-tab="checker" class="tab" type="button">Checker</button>
     </div>
 
     <div id="tab-human" role="tabpanel" aria-labelledby="tab-btn-human" class="tab-panel">
@@ -90,6 +87,7 @@
       <div class="row">
         <button id="download-md" type="button" class="primary">Download resume.md</button>
         <button id="copy-md" type="button">Copy Markdown</button>
+        <button id="print-resume" type="button">print / save as pdf</button>
       </div>
     </div>
 
@@ -111,9 +109,9 @@
       <p class="hint">Headline + About, generated from the same source — never a second copy to maintain.</p>
     </div>
 
-    <div class="checker" aria-labelledby="checker-heading">
-      <h3 id="checker-heading">Consistency checker</h3>
-      <p class="hint">Paste profile text from anywhere (LinkedIn, a PDF, an old resume). Entries in the form “Title at Company”, one per line. The sample paste below names one employer that is <em>not</em> in the source — OldCo Logistics — and the checker catches it live.</p>
+    <div id="tab-checker" role="tabpanel" aria-labelledby="tab-btn-checker" class="tab-panel" hidden>
+      <h3 class="checker-title">check a profile against this source</h3>
+      <p class="hint">paste profile text — “title at company”, one per line. the sample paste names one employer, OldCo Logistics, that isn't in the source — on purpose, so you can watch the checker catch it.</p>
       <label class="visually-hidden" for="profile-input">Pasted profile text</label>
       <textarea id="profile-input" spellcheck="false" rows="9"></textarea>
       <div id="check-results" aria-live="polite"></div>
@@ -122,7 +120,8 @@
 </main>
 
 <footer class="site-footer">
-  <p><strong>The guardrail:</strong> this tool reformats and checks facts — it never invents them. If a fact is not in the source, it does not appear in any output. Everything runs in your browser; nothing you type leaves this page. MIT License.</p>
+  <p><strong>the guardrail:</strong> this tool reformats and checks facts — it never invents them. if a fact is not in the source, it does not appear in any output. MIT License.</p>
+  <p class="footer-line">everything runs in your browser; nothing leaves the page.</p>
 </footer>
 
 <script src="app.js"></script>
