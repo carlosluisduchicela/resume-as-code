@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>resume-as-code — one source JSON, every resume surface</title>
+<meta name="description" content="Generate an ATS resume, a human resume, and LinkedIn text from a single structured JSON file — plus a consistency checker. Sample data is fictional.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <h1>resume-as-code</h1>
+  <p class="tagline">One structured JSON file is the only source of truth. Every resume surface — ATS text, human resume, LinkedIn — is generated from it, never retyped.</p>
+  <p class="note">Works fully offline. Nothing you type leaves this page. The sample resume is fictional.</p>
+</header>
+
+<main class="layout">
+  <section class="panel" aria-labelledby="source-heading">
+    <h2 id="source-heading">1. Source JSON</h2>
+    <label class="visually-hidden" for="json-input">Structured resume JSON</label>
+    <textarea id="json-input" spellcheck="false" rows="28"></textarea>
+    <p id="json-error" class="error" role="alert" hidden></p>
+    <div class="row">
+      <button id="load-sample" type="button">Load Sample</button>
+      <button id="generate" type="button" class="primary">Generate outputs</button>
+    </div>
+
+    <h2 class="subhead">2. Consistency Checker</h2>
+    <p class="hint">Paste profile text (e.g. from LinkedIn). Experience entries should use the form “Title at Company”, one per line. The sample below deliberately includes one employer that is <em>not</em> in the JSON — watch the checker catch it.</p>
+    <label class="visually-hidden" for="profile-input">Pasted LinkedIn profile text</label>
+    <textarea id="profile-input" spellcheck="false" rows="12"></textarea>
+    <div class="row">
+      <button id="run-check" type="button" class="primary">Run consistency check</button>
+    </div>
+    <div id="check-results" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="output-heading">
+    <h2 id="output-heading">Generated outputs</h2>
+    <div class="tabs" role="tablist" aria-label="Output format">
+      <button role="tab" id="tab-btn-ats" aria-controls="tab-ats" aria-selected="true" data-tab="ats" class="tab active" type="button">ATS text</button>
+      <button role="tab" id="tab-btn-human" aria-controls="tab-human" aria-selected="false" data-tab="human" class="tab" type="button">Human resume</button>
+      <button role="tab" id="tab-btn-linkedin" aria-controls="tab-linkedin" aria-selected="false" data-tab="linkedin" class="tab" type="button">LinkedIn</button>
+    </div>
+
+    <div id="tab-ats" role="tabpanel" aria-labelledby="tab-btn-ats" class="tab-panel">
+      <pre id="ats-output" class="output"></pre>
+      <div class="row">
+        <button id="download-ats" type="button">Download ats.txt</button>
+        <button id="download-md" type="button">Download resume.md</button>
+      </div>
+    </div>
+
+    <div id="tab-human" role="tabpanel" aria-labelledby="tab-btn-human" class="tab-panel" hidden>
+      <article id="human-output" class="resume-preview"></article>
+    </div>
+
+    <div id="tab-linkedin" role="tabpanel" aria-labelledby="tab-btn-linkedin" class="tab-panel" hidden>
+      <pre id="linkedin-output" class="output"></pre>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>Guardrail: this tool reformats and checks facts — it never invents them. If a fact is not in the JSON, it does not appear in any output. MIT License.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
