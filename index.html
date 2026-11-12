@@ -3,66 +3,126 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>resume-as-code — one source JSON, every resume surface</title>
-<meta name="description" content="Generate an ATS resume, a human resume, and LinkedIn text from a single structured JSON file — plus a consistency checker. Sample data is fictional.">
+<title>resume-as-code — one resume, every surface, always in sync</title>
+<meta name="description" content="Edit one structured resume and watch the ATS text, the human resume, and the LinkedIn copy update live — with a lint panel that catches drift before a recruiter does. Sample data is fictional.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="site-header">
-  <h1>resume-as-code</h1>
-  <p class="tagline">One structured JSON file is the only source of truth. Every resume surface — ATS text, human resume, LinkedIn — is generated from it, never retyped.</p>
-  <p class="note">Works fully offline. Nothing you type leaves this page. The sample resume is fictional.</p>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">{ }</span>
+      <span class="brand-name">resume&#8209;as&#8209;code</span>
+    </div>
+    <p class="topbar-badges">
+      <span class="badge">100% offline</span>
+      <span class="badge">no sign-up</span>
+      <span class="badge">sample data is fictional</span>
+    </p>
+  </div>
 </header>
 
+<section class="hero">
+  <h1>One resume. Every surface. <span class="hero-accent">Always in sync.</span></h1>
+  <p class="hero-sub">Your resume lives in exactly one place — a single structured source. Edit it once and the ATS text, the human resume, and the LinkedIn copy are regenerated instantly. Nothing is ever retyped, so nothing can drift.</p>
+  <ol class="steps">
+    <li><span class="step-n">1</span><span><strong>Edit</strong> the sample on the left — form or raw JSON.</span></li>
+    <li><span class="step-n">2</span><span><strong>Watch</strong> all three outputs update as you type.</span></li>
+    <li><span class="step-n">3</span><span><strong>Lint</strong> catches bad dates, duplicates, and missing fields live.</span></li>
+  </ol>
+  <div class="tryit">
+    <span class="tryit-label">Try it — one click:</span>
+    <button type="button" class="chip" data-quick="promote">Promote Alex</button>
+    <button type="button" class="chip" data-quick="newjob">Add a new job</button>
+    <button type="button" class="chip" data-quick="bullet">Add a bullet</button>
+    <button type="button" class="chip chip-danger" data-quick="break">Break it on purpose</button>
+    <button type="button" class="chip chip-ghost" data-quick="reset">Reset sample</button>
+  </div>
+  <p id="sync-status" class="sync-status" role="status">Sample loaded — outputs in sync.</p>
+</section>
+
 <main class="layout">
-  <section class="panel" aria-labelledby="source-heading">
-    <h2 id="source-heading">1. Source JSON</h2>
-    <label class="visually-hidden" for="json-input">Structured resume JSON</label>
-    <textarea id="json-input" spellcheck="false" rows="28"></textarea>
-    <p id="json-error" class="error" role="alert" hidden></p>
-    <div class="row">
-      <button id="load-sample" type="button">Load Sample</button>
-      <button id="generate" type="button" class="primary">Generate outputs</button>
-    </div>
 
-    <h2 class="subhead">2. Consistency Checker</h2>
-    <p class="hint">Paste profile text (e.g. from LinkedIn). Experience entries should use the form “Title at Company”, one per line. The sample below deliberately includes one employer that is <em>not</em> in the JSON — watch the checker catch it.</p>
-    <label class="visually-hidden" for="profile-input">Pasted LinkedIn profile text</label>
-    <textarea id="profile-input" spellcheck="false" rows="12"></textarea>
-    <div class="row">
-      <button id="run-check" type="button" class="primary">Run consistency check</button>
-    </div>
-    <div id="check-results" aria-live="polite"></div>
-  </section>
-
-  <section class="panel" aria-labelledby="output-heading">
-    <h2 id="output-heading">Generated outputs</h2>
-    <div class="tabs" role="tablist" aria-label="Output format">
-      <button role="tab" id="tab-btn-ats" aria-controls="tab-ats" aria-selected="true" data-tab="ats" class="tab active" type="button">ATS text</button>
-      <button role="tab" id="tab-btn-human" aria-controls="tab-human" aria-selected="false" data-tab="human" class="tab" type="button">Human resume</button>
-      <button role="tab" id="tab-btn-linkedin" aria-controls="tab-linkedin" aria-selected="false" data-tab="linkedin" class="tab" type="button">LinkedIn</button>
-    </div>
-
-    <div id="tab-ats" role="tabpanel" aria-labelledby="tab-btn-ats" class="tab-panel">
-      <pre id="ats-output" class="output"></pre>
-      <div class="row">
-        <button id="download-ats" type="button">Download ats.txt</button>
-        <button id="download-md" type="button">Download resume.md</button>
+  <!-- ======================= SOURCE ======================= -->
+  <section class="card source-card" aria-labelledby="source-heading">
+    <div class="card-head">
+      <h2 id="source-heading">Source</h2>
+      <div class="seg" role="tablist" aria-label="Editor mode">
+        <button type="button" id="mode-form" class="seg-btn active" role="tab" aria-selected="true">Form</button>
+        <button type="button" id="mode-json" class="seg-btn" role="tab" aria-selected="false">JSON</button>
       </div>
     </div>
 
-    <div id="tab-human" role="tabpanel" aria-labelledby="tab-btn-human" class="tab-panel" hidden>
+    <div id="form-editor"><!-- built by app.js --></div>
+
+    <div id="json-editor" hidden>
+      <label class="visually-hidden" for="json-input">Structured resume JSON</label>
+      <textarea id="json-input" spellcheck="false" rows="26"></textarea>
+      <p id="json-error" class="error" role="alert" hidden></p>
+      <p class="hint">This is the actual source of truth — the same JSON the CLI consumes. Edit it and the form, outputs, and lint all follow.</p>
+    </div>
+
+    <div class="lint" aria-labelledby="lint-heading">
+      <div class="lint-head">
+        <h3 id="lint-heading">Lint</h3>
+        <p id="lint-summary" class="lint-summary" aria-live="polite"></p>
+      </div>
+      <ul id="lint-list" class="lint-list"></ul>
+    </div>
+  </section>
+
+  <!-- ======================= OUTPUTS ======================= -->
+  <section class="card outputs-card" aria-labelledby="output-heading">
+    <div class="card-head">
+      <h2 id="output-heading">Outputs</h2>
+      <span class="live-dot" title="Regenerates as you type"><span class="dot"></span>live</span>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Output format">
+      <button role="tab" id="tab-btn-human" aria-controls="tab-human" aria-selected="true" data-tab="human" class="tab active" type="button">Human resume</button>
+      <button role="tab" id="tab-btn-ats" aria-controls="tab-ats" aria-selected="false" data-tab="ats" class="tab" type="button">ATS text</button>
+      <button role="tab" id="tab-btn-linkedin" aria-controls="tab-linkedin" aria-selected="false" data-tab="linkedin" class="tab" type="button">LinkedIn</button>
+    </div>
+
+    <div id="tab-human" role="tabpanel" aria-labelledby="tab-btn-human" class="tab-panel">
       <article id="human-output" class="resume-preview"></article>
+      <div class="row">
+        <button id="download-md" type="button" class="primary">Download resume.md</button>
+        <button id="copy-md" type="button">Copy Markdown</button>
+      </div>
+    </div>
+
+    <div id="tab-ats" role="tabpanel" aria-labelledby="tab-btn-ats" class="tab-panel" hidden>
+      <pre id="ats-output" class="output"></pre>
+      <div class="row">
+        <button id="download-ats" type="button" class="primary">Download ats.txt</button>
+        <button id="copy-ats" type="button">Copy text</button>
+      </div>
+      <p class="hint">Single column, no tables, no graphics — what an applicant tracking system wants to read.</p>
     </div>
 
     <div id="tab-linkedin" role="tabpanel" aria-labelledby="tab-btn-linkedin" class="tab-panel" hidden>
       <pre id="linkedin-output" class="output"></pre>
+      <div class="row">
+        <button id="download-linkedin" type="button" class="primary">Download linkedin.txt</button>
+        <button id="copy-linkedin" type="button">Copy text</button>
+      </div>
+      <p class="hint">Headline + About, generated from the same source — never a second copy to maintain.</p>
+    </div>
+
+    <div class="checker" aria-labelledby="checker-heading">
+      <h3 id="checker-heading">Consistency checker</h3>
+      <p class="hint">Paste profile text from anywhere (LinkedIn, a PDF, an old resume). Entries in the form “Title at Company”, one per line. The sample paste below names one employer that is <em>not</em> in the source — OldCo Logistics — and the checker catches it live.</p>
+      <label class="visually-hidden" for="profile-input">Pasted profile text</label>
+      <textarea id="profile-input" spellcheck="false" rows="9"></textarea>
+      <div id="check-results" aria-live="polite"></div>
     </div>
   </section>
 </main>
 
 <footer class="site-footer">
-  <p>Guardrail: this tool reformats and checks facts — it never invents them. If a fact is not in the JSON, it does not appear in any output. MIT License.</p>
+  <p><strong>The guardrail:</strong> this tool reformats and checks facts — it never invents them. If a fact is not in the source, it does not appear in any output. Everything runs in your browser; nothing you type leaves this page. MIT License.</p>
 </footer>
 
 <script src="app.js"></script>

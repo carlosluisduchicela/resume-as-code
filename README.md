@@ -32,7 +32,7 @@ python3 -m http.server 8000
 # then visit http://localhost:8000
 ```
 
-Left panel: edit the resume JSON (or click **Load Sample**). Click **Generate outputs** to see the ATS text, the styled human resume, and the LinkedIn text. Paste profile text below and click **Run consistency check**. **Download** buttons export `ats.txt` and `resume.md`.
+The fictional Alex Rivera sample loads automatically. Edit it in the **form editor** (or switch to the raw **JSON** view — same source) and the ATS text, styled human resume, and LinkedIn text regenerate **live as you type**, next to a **lint panel** that flags missing contact fields, invalid emails, duplicate skills/bullets, out-of-order or impossible dates, and unquantified bullets. One-click chips at the top let you try a promotion, a new job, an added bullet — or deliberately break the source and watch the lint light up. The consistency checker also runs live on pasted profile text. **Download** buttons export `ats.txt`, `resume.md`, and `linkedin.txt`; **Copy** buttons sit beside each output. (The web lint panel is a browser extra; the CLI keeps its original behavior.)
 
 ## Run the CLI
 
